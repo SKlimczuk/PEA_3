@@ -38,9 +38,9 @@ int main(int argc, const char * argv[]) {
             case 1:
             {
                 //read data from file
-                string filename;
-                cout << FILE_MENU;
-                cin >> filename;
+                string filename = "tsp_6_1.txt";
+//                cout << FILE_MENU;
+//                cin >> filename;
                 graph = new Graph(filename);
             } break;
             case 2:

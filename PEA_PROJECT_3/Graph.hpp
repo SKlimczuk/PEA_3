@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <chrono>
 #include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -25,8 +26,24 @@ private:
     //number of cities/vertexes
     int cities;
     
-    //graph representation as adjency matrix
+    //graph represented as adjency matrix
     int **graph;
+    
+    //variables of genetic alg
+    int numOfGenerations;
+    int sizeOfPopulation;
+    int numOfMutations;
+    int numOfCrossings;
+    
+    int **population;
+    
+    void generateRandomPopulation();
+    int calculatePathsCost(int *path);
+    
+    void mutationOperation();
+    void crossingOperation();
+    
+    void sortPopulation();
     
 public:
     Graph(string filename);
