@@ -36,14 +36,16 @@ private:
     int numOfCrossings;
     
     int **population;
+    int weightIndex;
     
     void generateRandomPopulation();
-    int calculatePathsCost(int *path);
+    void displayPopulation();
+    void calculatePathsCost(int *path);
     
     void mutationOperation();
     void crossingOperation();
     
-    void sortPopulation();
+    void sortPopulation(int limit);
     
 public:
     Graph(string filename);

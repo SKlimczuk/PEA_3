@@ -13,6 +13,7 @@ int **initializeMatrix(int **matrix, int limit);
 int **initializePopulations(int **populations, int limitX, int limitY);
 void displayTspResult(int *resultArr, int counter, int totalWeight);
 void swap(int *path, int x, int y);
+void swapArrays(int *pathA, int *pathB, int limit);
 
 Graph::Graph(string filename)
 {
@@ -26,6 +27,7 @@ Graph::Graph(string filename)
         cout << endl << "CORRECT FILE !" << endl;
         
         file >> this->cities;
+        this->weightIndex = this->cities + 1;
         
         graph = new int*[cities];
         graph = initializeMatrix(graph, cities);
@@ -44,22 +46,6 @@ Graph::Graph(string filename)
     }
 }
 
-Graph::Graph(int cities)
-{
-    this -> cities = cities;
-    graph = new int*[cities];
-    graph = initializeMatrix(graph, cities);
-    
-    for(int i = 0; i < cities; i++){
-        for(int k = 0; k < cities; k++){
-            if(i == k)
-                graph[i][k] = 0;
-            else
-                graph[i][k] = rand()%100;
-        }
-    }
-}
-
 Graph::~Graph()
 {
     for(int i = 0; i < cities; i++)
@@ -71,6 +57,7 @@ Graph::~Graph()
 }
 
 void Graph::displayGraph(){
+    cout << endl << "-----GRAPH-----" << endl;
     for(int i = 0; i < cities; i++){
         for(int k = 0; k < cities; k++){
             cout << setw(4) << graph[i][k] << " ";
@@ -88,9 +75,14 @@ void Graph::tsp(){
     this->numOfMutations = 1;
     
     generateRandomPopulation();
+    displayPopulation();
+    
+//    sortPopulation(sizeOfPopulation);
+//    displayPopulation();
+   
     
 //    for (int i = 0; i < numOfGenerations; i++) {
-        crossingOperation();
+//        crossingOperation();
 //        mutationOperation();
 //    }
     
@@ -114,20 +106,22 @@ void Graph::generateRandomPopulation(){
         swap(singlePopulation, randomA, randomB);
         
         singlePopulation[cities] = 0;
-//        int tmpSum = calculatePathsCost(singlePopulation);
-//        singlePopulation[cities + 1] = tmpSum;
+        calculatePathsCost(singlePopulation);
         
         for (int k = 0; k <= cities + 1; k++)
             population[i][k] = singlePopulation[k];
         delete[] singlePopulation;
     }
+}
 
+void Graph::displayPopulation(){
+    cout << endl << "-----POPULATION-----" << endl;
     for(int i = 0; i < sizeOfPopulation; i++){
         cout << i << " === ";
         for (int k = 0; k < cities + 1; k++) {
             cout << population[i][k] << " ";
         }
-        cout << " w(" << population[cities + 1] << ") " << endl;
+        cout << " w(" << population[i][weightIndex] << ") " << endl;
     }
 }
 
@@ -142,24 +136,28 @@ void Graph::mutationOperation(){
         randomC = rand() % (cities - 1) + 1;
     }while (randomB == randomC);
     
-//    cout << "---------------------------------PRZED" << endl;
-//    cout << randomA << " === ";
-//    for(int i = 0; i < cities + 1; i++){
-//        cout << populations[randomA][i] << " ";
-//    }
-//    cout << endl;
+    cout << "---------------------------------PRZED" << endl;
+    cout << randomA << " === ";
+    for(int i = 0; i < cities + 1; i++){
+        cout << population[randomA][i] << " ";
+    }
+    cout << " w(" << population[randomA][weightIndex] << ")";
+    cout << endl;
     
     //mutating 2 of random chosen permutations
     swap(population[randomA], randomB, randomC);
+    calculatePathsCost(population[randomA]);
     
-//    cout << "---------------------------------PO" << endl;
-//    cout << randomA << " === ";
-//    for(int i = 0; i < cities + 1; i++){
-//        cout << populations[randomA][i] << " ";
-//    }
-//    cout << endl;
+    cout << "---------------------------------PO" << endl;
+    cout << randomA << " === ";
+    for(int i = 0; i < cities + 1; i++){
+        cout << population[randomA][i] << " ";
+    }
+    cout << " w(" << population[randomA][weightIndex] << ")";
+    cout << endl;
 }
 
+//TODO: work on crossing operation, think about the way of crossing
 void Graph::crossingOperation(){
     int randomA;
     int randomB;
@@ -209,12 +207,19 @@ void Graph::crossingOperation(){
     cout << endl;
 }
 
-int Graph::calculatePathsCost(int *path){
+void Graph::calculatePathsCost(int *path){
     int sum = 0;
     for(int i = 0; i < cities; i++){
         sum += graph[path[i]][path[i+1]];
     }
-    return sum;
+    path[weightIndex] = sum;
+}
+
+void Graph::sortPopulation(int limit){
+    for(int i = 0; i < limit - 1; i++)
+        for(int j = 0; j < limit - i - 1; j++)
+            if(population[j][weightIndex] > population[j+1][weightIndex])
+                swapArrays(population[j], population[j+1], cities+1);
 }
 
 //----------------------------------------------class methods
@@ -244,3 +249,14 @@ void swap(int *path, int x, int y){
     path[x] = path[y];
     path[y] = tmp;
 }
+
+void swapArrays(int *pathA, int *pathB, int limit){
+    int *tmpArray = new int[limit];
+    
+    for(int k = 0; k <= limit; k++){
+        tmpArray[k] = pathA[k];
+        pathA[k] = pathB[k];
+        pathB[k] = tmpArray[k];
+    }
+}
+
