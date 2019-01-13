@@ -82,7 +82,7 @@ void Graph::tsp(){
    
     
 //    for (int i = 0; i < numOfGenerations; i++) {
-//        crossingOperation();
+        crossingOperation();
 //        mutationOperation();
 //    }
     
@@ -157,7 +157,6 @@ void Graph::mutationOperation(){
     cout << endl;
 }
 
-//TODO: work on crossing operation, think about the way of crossing
 void Graph::crossingOperation(){
     int randomA;
     int randomB;
@@ -182,29 +181,40 @@ void Graph::crossingOperation(){
     }
     cout << endl;
     
-    //crossing 2 of random chosen permutations
-    int *newPermutation = new int[cities + 2];
+    int *child = new int[cities + 1];
+    
     bool *visited = new bool[cities];
-    for(int i = 0; i < cities + 1; i++){
-        if(i < (cities+2)/2){
-            newPermutation[i] = tempA[i];
-            visited[tempA[i]] = true;
-        } else {
-            for(int k = 0; k < cities + 1; k++){
-                if(visited[tempB[k]] != true){
-                    newPermutation[i] = tempB[k];
-                    visited[tempB[k]] = true;
-                }
-            }
+    for (int i = 0; i < cities; i++)
+        visited[i] = false;
+    
+    int crossingIndex = 0;
+    for (int i = 0; i < (cities+1)/2; i++){
+        child[crossingIndex] = tempA[crossingIndex];
+        visited[tempA[crossingIndex]] = true;
+        crossingIndex++;
+    }
+    
+    for (int i = 0; i < cities + 1; i++) {
+        if(visited[tempB[i]] == false){
+            child[crossingIndex] = tempB[i];
+            visited[tempB[i]] = true;
+            crossingIndex++;
         }
     }
     
+    child[cities] = 0;
+    calculatePathsCost(child);
+    
     cout << "---------------------------------PO" << endl;
-    cout << randomA << "+" << randomB << " === ";
+    cout << randomA << "x" << randomB << " === ";
     for(int i = 0; i < cities + 1; i++){
-        cout << newPermutation[i] << " ";
+        cout << child[i] << " ";
     }
+    cout << " w(" << child[weightIndex] << ")";
     cout << endl;
+    
+    delete []visited;
+    delete []child;
 }
 
 void Graph::calculatePathsCost(int *path){
@@ -259,4 +269,3 @@ void swapArrays(int *pathA, int *pathB, int limit){
         pathB[k] = tmpArray[k];
     }
 }
-
