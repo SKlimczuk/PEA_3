@@ -17,8 +17,11 @@
 #include <chrono>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
+
+#include "Gene.hpp"
 
 class Graph {
     
@@ -29,25 +32,24 @@ private:
     //graph represented as adjency matrix
     int **graph;
     
-    //variables of genetic alg
     int numOfGenerations;
     int currentSizeOfPopulation;
     int finalSizeOfPopulation;
     int numOfMutations;
     int numOfCrossings;
     
-    int **population;
-    int weightIndex;
+    vector<Gene> population;
     
     void generateRandomPopulation();
     void displayPopulation();
-    void calculatePathsCost(int *path);
+    
+    int calculatePathsCost(vector<int> path);
     
     void mutationOperation();
     void crossingOperation();
     
-    void sortPopulation(int limit);
-    void cutPopulation(int limit);
+    void sortPopulation();
+    void cutPopulation();
     void displayBestPath();
     
 public:

@@ -10,10 +10,6 @@
 
 //prototypes of methods used only in this class
 int **initializeMatrix(int **matrix, int limit);
-int **initializePopulations(int **populations, int limitX, int limitY);
-int **copyPopulation(int **array, int limitY, int limitX);
-void swap(int *path, int x, int y);
-void swapArrays(int *pathA, int *pathB, int limit);
 
 Graph::Graph(string filename)
 {
@@ -26,7 +22,6 @@ Graph::Graph(string filename)
         cout << endl << "CORRECT FILE !" << endl;
         
         file >> this->cities;
-        this->weightIndex = this->cities + 1;
         
         graph = new int*[cities];
         graph = initializeMatrix(graph, cities);
@@ -60,21 +55,12 @@ void Graph::displayGraph(){
 }
 
 void Graph::tsp(){
-    this->currentSizeOfPopulation = 10;
-    this->finalSizeOfPopulation = currentSizeOfPopulation;
-    this->population = new int*[currentSizeOfPopulation];
-    initializePopulations(population, cities + 1, finalSizeOfPopulation);
+    this->finalSizeOfPopulation = 10;
     this->numOfGenerations = 50;
     this->numOfCrossings = 5;
     this->numOfMutations = 1;
     
     generateRandomPopulation();
-//    for(int i = 0; i < finalSizeOfPopulation; i++){
-//        for (int k = 0; k <= cities + 1; k++)
-//            cout << population[i][k] << " ";
-//        cout << endl;
-//    }
-    displayPopulation();
 
     for(int i = 0; i < numOfGenerations; i++){
         for (int k = 0; k < numOfCrossings; k++) {
@@ -83,20 +69,17 @@ void Graph::tsp(){
         for (int k = 0; k < numOfMutations; k++) {
             mutationOperation();
         }
-        sortPopulation(currentSizeOfPopulation);
-        currentSizeOfPopulation = finalSizeOfPopulation;
-//        displayPopulation();
+        sortPopulation();
+        cutPopulation();
     }
     displayBestPath();
-    
-    for(int i = 0; i < currentSizeOfPopulation; i++)
-        delete population[i];
-    delete []population;
 }
 
 void Graph::generateRandomPopulation(){
     for(int i = 0; i < finalSizeOfPopulation; i++){
-        int *singlePopulation = new int[cities + 1];
+       
+        vector<int> singlePopulation;
+        
         int randomA;
         int randomB;
         
@@ -106,30 +89,23 @@ void Graph::generateRandomPopulation(){
         }while (randomA == randomB);
         
         for (int k = 0; k < cities; k++)
-            singlePopulation[k] = k;
+            singlePopulation.push_back(k);
+        singlePopulation.push_back(0);
+        swap(singlePopulation[randomA], singlePopulation[randomB]);
+        
+        Gene *gene = new Gene(singlePopulation, calculatePathsCost(singlePopulation));
 
-        swap(singlePopulation, randomA, randomB);
-        
-        singlePopulation[cities] = 0;
-        calculatePathsCost(singlePopulation);
-        
-        for (int k = 0; k <= cities + 1; k++)
-            population[i][k] = singlePopulation[k];
-        delete[] singlePopulation;
-        for (int k = 0; k <= cities + 1; k++)
-            cout << population[i][k] << " ";
-        cout << endl;
+        population.push_back(*gene);
     }
 }
 
 void Graph::displayPopulation(){
+    int counter = 0;
     cout << endl << "-----POPULATION-----" << endl;
     for(int i = 0; i < finalSizeOfPopulation; i++){
-        cout << i << " === ";
-        for (int k = 0; k <= cities; k++) {
-            cout << population[i][k] << " ";
-        }
-        cout << " w(" << population[i][weightIndex] << ") " << endl;
+        cout << counter << " === ";
+        population.at(i).displayPath(cities);
+        counter++;
     }
 }
 
@@ -144,23 +120,10 @@ void Graph::mutationOperation(){
         randomC = rand() % (cities - 1) + 1;
     }while (randomB == randomC);
     
-//    cout << "---------------------------------PRZED" << endl;
-//    cout << randomA << " === ";
-//    for(int i = 0; i < cities + 1; i++){
-//        cout << population[randomA][i] << " ";
-//    }
-//    cout << " w(" << population[randomA][weightIndex] << ")";
-//    cout << endl;
-    
-    swap(population[randomA], randomB, randomC);
-    calculatePathsCost(population[randomA]);
-    
-//    cout << "---------------------------------PO" << endl;
-//    cout << randomA << " === ";
-//    for(int i = 0; i < cities + 1; i++){
-//        cout << population[randomA][i] << " ";
-//    }
-//    cout << " w(" << population[randomA][weightIndex] << ")" << endl;
+    auto vecToMutation = population[randomA].getPath();
+    swap(vecToMutation[randomB], vecToMutation[randomC]);
+    population[randomA].setPath(vecToMutation);
+    population[randomA].setCost(calculatePathsCost(vecToMutation));
 }
 
 void Graph::crossingOperation(){
@@ -172,22 +135,10 @@ void Graph::crossingOperation(){
         randomB = rand() % (finalSizeOfPopulation);
     }while (randomA == randomB);
     
-    int *tempA = population[randomA];
-    int *tempB = population[randomB];
+    auto tempA = population[randomA].getPath();
+    auto tempB = population[randomB].getPath();
     
-//    cout << "---------------------------------PRZED" << endl;
-//    cout << randomA << " === ";
-//    for(int i = 0; i < cities + 1; i++){
-//        cout << tempA[i] << " ";
-//    }
-//    cout << endl;
-//    cout << randomB << " === ";
-//    for(int i = 0; i < cities + 1; i++){
-//        cout << tempB[i] << " ";
-//    }
-//    cout << endl;
-    
-    int *child = new int[cities + 1];
+    vector<int> child;
     
     bool *visited = new bool[cities];
     for (int i = 0; i < cities; i++)
@@ -195,64 +146,51 @@ void Graph::crossingOperation(){
     
     int crossingIndex = 0;
     for (int i = 0; i < (cities+1)/2; i++){
-        child[crossingIndex] = tempA[crossingIndex];
+        child.push_back(tempA[crossingIndex]);
         visited[tempA[crossingIndex]] = true;
         crossingIndex++;
     }
     
     for (int i = 0; i < cities + 1; i++) {
         if(visited[tempB[i]] == false){
-            child[crossingIndex] = tempB[i];
+            child.push_back(tempB[i]);
             visited[tempB[i]] = true;
             crossingIndex++;
         }
     }
+    child.push_back(0);
     
-    child[cities] = 0;
-    calculatePathsCost(child);
-    
-//    cout << "---------------------------------PO" << endl;
-//    cout << randomA << "x" << randomB << " === ";
-//    for(int i = 0; i < cities + 1; i++){
-//        cout << child[i] << " ";
-//    }
-//    cout << " w(" << child[weightIndex] << ")" << endl;
-    
-    currentSizeOfPopulation++;
-    population = copyPopulation(population, currentSizeOfPopulation, cities + 1);
-    
-    for(int i = 0; i <= cities + 1; i++)
-        population[currentSizeOfPopulation-1][i] = child[i];
-    
-    delete []visited;
-    delete []child;
+    Gene gene;
+    gene.setPath(child);
+    gene.setCost(calculatePathsCost(child));
+    population.push_back(gene);
 }
 
-void Graph::calculatePathsCost(int *path){
+int Graph::calculatePathsCost(vector<int> path){
     int sum = 0;
     for(int i = 0; i < cities; i++){
         sum += graph[path[i]][path[i+1]];
     }
-    path[weightIndex] = sum;
+    return sum;
 }
 
-void Graph::sortPopulation(int limit){
-    for(int i = 0; i < limit - 1; i++)
-        for(int j = 0; j < limit - i - 1; j++)
-            if(population[j][weightIndex] > population[j+1][weightIndex])
-                swapArrays(population[j], population[j+1], cities+1);
+void Graph::sortPopulation(){
+    for(int i = 0; i < population.size() - 1; i++)
+        for(int j = 0; j < population.size() - i - 1; j++)
+            if(population[j].getCost() > population[j+1].getCost())
+                swap(population[j], population[j+1]);
 }
 
-void Graph::cutPopulation(int limit){
-    population = copyPopulation(population, limit, cities+1);
+void Graph::cutPopulation(){
+    while(population.size() != finalSizeOfPopulation){
+        population.pop_back();
+    }
+    cout << endl << "zostalo " << population.size() << " elementow" << endl;
 }
 
 void Graph::displayBestPath(){
     cout << endl << "-----BEST-----" << endl;
-    for (int i = 0; i < cities + 1; i++) {
-        cout << population[0][i] << " ";
-    }
-    cout << " w(" << population[0][weightIndex] << ")" << endl;
+    population[0].displayPath(cities);
 }
 
 //----------------------------------------------class methods
@@ -265,45 +203,4 @@ int** initializeMatrix(int **matrix, int limit)
     }
     
     return matrix;
-}
-
-int **initializePopulations(int **population, int limitX, int limitY){
-    for(int i = 0; i < limitY; i++){
-        population[i] = new int[limitY];
-        for(int k = 0; k < limitX; k++)
-            population[i][k] = 0;
-    }
-    
-    return population;
-}
-
-void swap(int *path, int x, int y){
-    int tmp = path[x];
-    path[x] = path[y];
-    path[y] = tmp;
-}
-
-void swapArrays(int *pathA, int *pathB, int limit){
-    int *tmpArray = new int[limit];
-    
-    for(int k = 0; k <= limit; k++){
-        tmpArray[k] = pathA[k];
-        pathA[k] = pathB[k];
-        pathB[k] = tmpArray[k];
-    }
-}
-
-int **copyPopulation(int **array, int limitY, int limitX){
-    int **tempArr = new int*[limitY];
-    initializePopulations(tempArr, limitX, limitY);
-    
-    for (int i = 0; i < limitY-1; i++)
-        for (int k = 0; k <= limitX + 1; k++)
-            tempArr[i][k] = array[i][k];
-    
-//    for (int i = 0; i < limitY; i++)
-//        delete array[i];
-//    delete []array;
-    
-    return tempArr;
 }

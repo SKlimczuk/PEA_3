@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2F55920F21E6477400B4E8CD /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2F55920E21E6477400B4E8CD /* main.cpp */; };
 		2F55921721E64B1000B4E8CD /* Graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2F55921521E64B1000B4E8CD /* Graph.cpp */; };
+		2F9C84C421ECFB5A00F164B7 /* Gene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2F9C84C221ECFB5A00F164B7 /* Gene.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,6 +29,8 @@
 		2F55920E21E6477400B4E8CD /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		2F55921521E64B1000B4E8CD /* Graph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Graph.cpp; sourceTree = "<group>"; };
 		2F55921621E64B1000B4E8CD /* Graph.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Graph.hpp; sourceTree = "<group>"; };
+		2F9C84C221ECFB5A00F164B7 /* Gene.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Gene.cpp; sourceTree = "<group>"; };
+		2F9C84C321ECFB5A00F164B7 /* Gene.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Gene.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +66,8 @@
 				2F55920E21E6477400B4E8CD /* main.cpp */,
 				2F55921521E64B1000B4E8CD /* Graph.cpp */,
 				2F55921621E64B1000B4E8CD /* Graph.hpp */,
+				2F9C84C221ECFB5A00F164B7 /* Gene.cpp */,
+				2F9C84C321ECFB5A00F164B7 /* Gene.hpp */,
 			);
 			path = PEA_PROJECT_3;
 			sourceTree = "<group>";
@@ -123,6 +128,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2F9C84C421ECFB5A00F164B7 /* Gene.cpp in Sources */,
 				2F55921721E64B1000B4E8CD /* Graph.cpp in Sources */,
 				2F55920F21E6477400B4E8CD /* main.cpp in Sources */,
 			);
