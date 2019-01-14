@@ -31,7 +31,8 @@ private:
     
     //variables of genetic alg
     int numOfGenerations;
-    int sizeOfPopulation;
+    int currentSizeOfPopulation;
+    int finalSizeOfPopulation;
     int numOfMutations;
     int numOfCrossings;
     
@@ -46,6 +47,8 @@ private:
     void crossingOperation();
     
     void sortPopulation(int limit);
+    void cutPopulation(int limit);
+    void displayBestPath();
     
 public:
     Graph(string filename);
