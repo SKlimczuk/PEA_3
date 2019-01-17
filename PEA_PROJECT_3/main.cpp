@@ -53,7 +53,10 @@ int main(int argc, const char * argv[]) {
             case 3:
             {
                 if(graph != nullptr){
-                    graph->tsp();
+                    int numOfSeconds;
+                    cout << "number of seconds: ";
+                    cin >> numOfSeconds;
+                    graph->tsp(numOfSeconds);
                 }
                 else
                     cout << endl << "GRAPH IS NOT INITIALIZED" << endl;

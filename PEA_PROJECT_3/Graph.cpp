@@ -54,24 +54,33 @@ void Graph::displayGraph(){
     }
 }
 
-void Graph::tsp(){
+void Graph::tsp(int numOfSeconds){
     this->finalSizeOfPopulation = 10;
     this->numOfGenerations = 50;
-    this->numOfCrossings = 5;
-    this->numOfMutations = 1;
+    this->numOfCrossings = 0.8 * cities;
+    this->numOfMutations = 0.1 * cities;
+    
+     bool isTimeExceeded = false;
     
     generateRandomPopulation();
 
-    for(int i = 0; i < numOfGenerations; i++){
+    clock_t start = clock();
+    do{
         for (int k = 0; k < numOfCrossings; k++) {
-            crossingOperation();
+//            crossingOperationA();
+            crossingOperationB();
         }
         for (int k = 0; k < numOfMutations; k++) {
-            mutationOperation();
+            if(rand() / RAND_MAX < 0.01)
+                mutationOperation();
         }
         sortPopulation();
         cutPopulation();
-    }
+
+        clock_t elapsed = (clock()-start);
+        if(elapsed/CLOCKS_PER_SEC >= numOfSeconds)
+            isTimeExceeded = true;
+    }while(isTimeExceeded == false);
     displayBestPath();
 }
 
@@ -126,7 +135,7 @@ void Graph::mutationOperation(){
     population[randomA].setCost(calculatePathsCost(vecToMutation));
 }
 
-void Graph::crossingOperation(){
+void Graph::crossingOperationA(){
     int randomA;
     int randomB;
     
@@ -139,25 +148,82 @@ void Graph::crossingOperation(){
     auto tempB = population[randomB].getPath();
     
     vector<int> child;
+    child.push_back(0);
     
     bool *visited = new bool[cities];
     for (int i = 0; i < cities; i++)
         visited[i] = false;
     
-    int crossingIndex = 0;
-    for (int i = 0; i < (cities+1)/2; i++){
-        child.push_back(tempA[crossingIndex]);
-        visited[tempA[crossingIndex]] = true;
-        crossingIndex++;
+    for (int i = 1; i < (cities+1)/2; i++){
+        child.push_back(tempA[i]);
+        visited[tempA[i]] = true;
     }
-    
-    for (int i = 0; i < cities + 1; i++) {
+        
+    for (int i = 1; i < cities + 1; i++) {
         if(visited[tempB[i]] == false){
             child.push_back(tempB[i]);
             visited[tempB[i]] = true;
-            crossingIndex++;
         }
     }
+
+    child.push_back(0);
+    
+    Gene gene;
+    gene.setPath(child);
+    gene.setCost(calculatePathsCost(child));
+    population.push_back(gene);
+}
+
+void Graph::crossingOperationB(){
+    int randomA;
+    int randomB;
+    int randomC;
+    int randomD;
+    
+    do{
+        randomA = rand() % (finalSizeOfPopulation);
+        randomB = rand() % (finalSizeOfPopulation);
+        randomC = rand() % (cities - 1) + 1;
+        randomD = rand() % (cities - 1) + 1;
+    }while (randomA == randomB || randomC == randomD);
+    
+    auto tempA = population[randomA].getPath();
+    auto tempB = population[randomB].getPath();
+    
+    vector<int> child;
+    child.push_back(0);
+    
+    bool *visited = new bool[cities];
+    for (int i = 0; i < cities; i++)
+        visited[i] = false;
+    
+    if(randomC == 0 || randomD == 0)
+        cout << "lipa";
+    
+    if(randomC < randomD){
+        for(int i = randomC; i < randomD; i++){
+            child.push_back(tempA[i]);
+            visited[tempA[i]] = true;
+        }
+        for (int i = 1; i < cities + 1; i++) {
+            if(visited[tempB[i]] == false){
+                child.push_back(tempB[i]);
+                visited[tempB[i]] = true;
+            }
+        }
+    }else{
+        for(int i = randomD; i < randomC; i++){
+            child.push_back(tempA[i]);
+            visited[tempA[i]] = true;
+        }
+        for (int i = 1; i < cities + 1; i++) {
+            if(visited[tempB[i]] == false){
+                child.push_back(tempB[i]);
+                visited[tempB[i]] = true;
+            }
+        }
+    }
+    
     child.push_back(0);
     
     Gene gene;
@@ -185,7 +251,6 @@ void Graph::cutPopulation(){
     while(population.size() != finalSizeOfPopulation){
         population.pop_back();
     }
-    cout << endl << "zostalo " << population.size() << " elementow" << endl;
 }
 
 void Graph::displayBestPath(){

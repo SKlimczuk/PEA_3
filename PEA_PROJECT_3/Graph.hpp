@@ -46,7 +46,8 @@ private:
     int calculatePathsCost(vector<int> path);
     
     void mutationOperation();
-    void crossingOperation();
+    void crossingOperationA();
+    void crossingOperationB();
     
     void sortPopulation();
     void cutPopulation();
@@ -59,7 +60,7 @@ public:
     
     void displayGraph();
     
-    void tsp();
+    void tsp(int numOfSeconds);
 };
 
 
