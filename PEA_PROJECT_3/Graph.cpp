@@ -55,8 +55,7 @@ void Graph::displayGraph(){
 }
 
 void Graph::tsp(int numOfSeconds){
-    this->finalSizeOfPopulation = 10;
-    this->numOfGenerations = 50;
+    this->finalSizeOfPopulation = 0.8 * cities;
     this->numOfCrossings = 0.8 * cities;
     this->numOfMutations = 0.1 * cities;
     

@@ -32,7 +32,6 @@ private:
     //graph represented as adjency matrix
     int **graph;
     
-    int numOfGenerations;
     int currentSizeOfPopulation;
     int finalSizeOfPopulation;
     int numOfMutations;

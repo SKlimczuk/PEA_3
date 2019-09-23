@@ -56,7 +56,7 @@ int main(int argc, const char * argv[]) {
                     int numOfSeconds;
                     cout << "number of seconds: ";
                     cin >> numOfSeconds;
-                    graph->tsp(numOfSeconds);
+                        graph->tsp(numOfSeconds);
                 }
                 else
                     cout << endl << "GRAPH IS NOT INITIALIZED" << endl;
